@@ -30,7 +30,7 @@ class UserController extends AbstractController
     {
         $users = $repo->findAll();
 
-        $data = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups('detail'));
+        $data = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(['list']));
 
         $response = new Response($data, Response::HTTP_OK);
         $response->headers->set('Content-type', 'application/json');
@@ -46,7 +46,7 @@ class UserController extends AbstractController
      */
     public function show(User $user, SerializerInterface $serializer)
     {
-        $data = $serializer->serialize($user, 'json');
+        $data = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(['detail']));
 
         $response = new Response($data, Response::HTTP_OK);
         $response->headers->set('Content-type', 'application/json');

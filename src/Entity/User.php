@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,6 +13,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity("email")
+ * @Hateoas\Relation(
+ *     "self",
+ *      href = @Hateoas\Route(
+ *          "app_user_show",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute="true"
+ *      ),
+ *     exclusion= @Hateoas\Exclusion(groups={"detail", "list"})
+ * )
+ * @Hateoas\Relation(
+ *     "delete",
+ *      href = @Hateoas\Route(
+ *          "app_user_delete",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute="true"
+ *      ),
+ *     exclusion= @Hateoas\Exclusion(groups={"detail", "list"})
+ * )
  *
  */
 class User implements UserInterface
@@ -20,35 +39,35 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"create", "detail", "update"})
+     * @Serializer\Groups({"create", "detail", "list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Serializer\Groups({"create", "detail", "update"})
+     * @Serializer\Groups({"create", "detail", "list"})
      */
     private $first_name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Serializer\Groups({"create", "detail", "update"})
+     * @Serializer\Groups({"create", "detail", "list"})
      */
     private $last_name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Serializer\Groups({"create", "update"})
+     * @Serializer\Groups({"create"})
      */
     private $hash;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\Email()
-     * @Serializer\Groups({"create", "detail", "update"})
+     * @Serializer\Groups({"create", "detail"})
      */
     private $email;
 
