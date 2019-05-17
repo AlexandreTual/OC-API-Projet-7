@@ -34,7 +34,7 @@ class UserController extends AbstractFOSRestController
      * )
      * @IsGranted("ROLE_CUSTOMER")
      */
-    public function list(UserRepository $repo)
+    public function list(UserRepository $repo): array
     {
         $users = $repo->findBy(['customer' => $this->customerService->getUser()]);
 
@@ -52,8 +52,9 @@ class UserController extends AbstractFOSRestController
      * )
      * @Security("user.getId() == userApi.getCustomer().getId()")
      * @param User $user
+     * @return User
      */
-    public function show(User $userApi)
+    public function show(User $userApi): User
     {
         return $userApi;
     }
@@ -110,9 +111,9 @@ class UserController extends AbstractFOSRestController
      * @Security("user.getId() == existingUser.getCustomer().getId()")
      * @param Request $request
      * @param ObjectManager $manager
-     * @param SerializerInterface $serializer
+     * @return User
      */
-    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator)
+    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator): User
     {
         $array = json_decode($request->getContent(), true);
         // sette the user object dynamically
