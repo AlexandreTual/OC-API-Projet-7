@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          parameters = { "id" = "expr(object.getId())" },
  *          absolute="true"
  *      ),
- *     exclusion= @Hateoas\Exclusion(groups={"detail", "list"})
+ *     exclusion= @Hateoas\Exclusion(groups={"detail", "list", "create"})
  * )
  * @Hateoas\Relation(
  *     "delete",
@@ -46,35 +46,35 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Serializer\Groups({"create", "detail", "list"})
+     * @Serializer\Groups({"create", "detail", "list", "update"})
      */
-    private $first_name;
+    private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Serializer\Groups({"create", "detail", "list"})
+     * @Serializer\Groups({"create", "detail", "list", "update"})
      */
-    private $last_name;
+    private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Serializer\Groups({"create"})
+     * @Serializer\Groups({"create", "update"})
      */
     private $hash;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank()
      * @Assert\Email()
-     * @Serializer\Groups({"create", "detail"})
+     * @Serializer\Groups({"create", "detail", "update"})
      */
     private $email;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
-     * @Serializer\Groups({"create"})
      */
     private $customer;
 
@@ -88,26 +88,26 @@ class User implements UserInterface
         return $this->id;
     }
 
-    public function getFirst_name(): ?string
+    public function getFirstName(): ?string
     {
-        return $this->first_name;
+        return $this->firstName;
     }
 
-    public function setFirst_name(string $first_name): self
+    public function setFirstName(string $firstName): self
     {
-        $this->firstname = $first_name;
+        $this->firstName = $firstName;
 
         return $this;
     }
 
-    public function getLast_name(): ?string
+    public function getLastName(): ?string
     {
-        return $this->last_name;
+        return $this->lastName;
     }
 
-    public function setLast_name(string $last_name): self
+    public function setLastName(string $lastName): self
     {
-        $this->last_name = $last_name;
+        $this->lastName = $lastName;
 
         return $this;
     }

@@ -3,13 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Service\CustomerService;
 use Doctrine\Common\Persistence\ObjectManager;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,74 +29,105 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route(path="/api/user", methods={"GET"})
+     * @Rest\Get(path="/api/user")
+     * @Rest\View(
+     *     serializerGroups={"list"}
+     * )
      * @IsGranted("ROLE_CUSTOMER")
      */
-    public function list(UserRepository $repo, SerializerInterface $serializer)
+    public function list(UserRepository $repo)
     {
         $users = $repo->findBy(['customer' => $this->customerService->getUser()]);
 
-        $data = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(['list']));
-
-        $response = new Response($data, Response::HTTP_OK);
-        $response->headers->set('Content-type', 'application/json');
-
-        return $response;
+        return $users;
     }
 
     /**
-     * @Route(path="/api/user/{id}", methods={"GET"})
-     * @Security("user.getId() == john.getCustomer().getId()")
+     * @Rest\Get(
+     *     path="/api/user/{id}",
+     *     requirements={"id": "\d+"}
+     * )
+     * @Rest\View(
+     *     statusCode=200,
+     *     serializerGroups={"detail"}
+     * )
+     * @Security("user.getId() == userApi.getCustomer().getId()")
      * @param User $user
-     * @param SerializerInterface $serializer
-     * @return Response
      */
-    public function show(User $john, SerializerInterface $serializer)
+    public function show(User $userApi)
     {
-        $data = $serializer->serialize($john, 'json', SerializationContext::create()->setGroups(['detail']));
-
-        $response = new Response($data, Response::HTTP_OK);
-        $response->headers->set('Content-type', 'application/json');
-
-        return $response;
+        return $userApi;
     }
 
     /**
-     * @Route(path="/api/user/create", methods={"POST"})
+     * @Rest\Post(
+     *     path="/api/user/create"
+     * )
+     * @Rest\View(
+     *     statusCode=201,
+     *     serializerGroups={"create"}
+     * )
+     * @ParamConverter("user", converter="fos_rest.request_body")
      * @IsGranted("ROLE_CUSTOMER")
-     * @param Request $request
-     * @param SerializerInterface $serializer
-     * @param ObjectManager $manager
-     * @return Response
      */
-    public function create(Request $request, SerializerInterface $serializer, CustomerService $customerService, ObjectManager $manager)
+    public function create(User $user, ObjectManager $manager)
     {
-        $data = $request->getContent();
-                $user = $serializer->deserialize(
-            $data,
-            User::class,
-            'json',
-            DeserializationContext::create()->setGroups(['create']));
-
-        $user->setCustomer($customerService->getUser());
+        $user->setCustomer($this->customerService->getUser());
         $manager->persist($user);
         $manager->flush();
 
-        return new Response('', Response::HTTP_CREATED);
+        return $user;
     }
 
     /**
-     * @Route(path="/api/user/delete/{id}", methods={"DELETE"})
-     * @Security("user.getId() == john.getCustomer().getId()")
+     * @Rest\Delete(
+     *     path="/api/user/delete/{id}",
+     *     requirements={"id": "\d+"}
+     * )
+     * @Rest\View(
+     *     statusCode=200
+     * )
+     * @Security("user.getId() == existingUser.getCustomer().getId()")
+     */
+    public function delete(User $existingUser, ObjectManager $manager)
+    {
+        $manager->remove($existingUser);
+        $manager->flush();
+    }
+
+    /**
+     * @Rest\Patch(
+     *     path="/api/user/update/{id}",
+     *     requirements={"id": "\d+"}
+     * )
+     * @Rest\View(
+     *     statusCode=200,
+     *     serializerGroups={"detail"}
+     * )
+     * @Security("user.getId() == existingUser.getCustomer().getId()")
      * @param Request $request
      * @param ObjectManager $manager
      * @param SerializerInterface $serializer
      */
-    public function delete(User $john, ObjectManager $manager)
+    public function update(User $existingUser, Request $request, ObjectManager $manager)
     {
-        $manager->remove($john);
+        $array = json_decode($request->getContent(), true);
+        // sette the user object dynamically
+         foreach ($array as $key => $value) {
+             $method = 'set'.$key;
+             if (preg_match('/_/', $key)) {
+                 $arrayExp = explode('_', $key);
+                 foreach ($arrayExp as $entry => $val) {
+                     $arrayExpUcF[$entry] = ucfirst($val);
+                 }
+                 $method = 'set' . implode($arrayExpUcF);
+             }
+             if (method_exists($existingUser, $method)) {
+                 $existingUser->$method($array[$key]);
+             }
+         }
         $manager->flush();
 
-        return new Response('', Response::HTTP_OK);
+        return $existingUser;
     }
 }
