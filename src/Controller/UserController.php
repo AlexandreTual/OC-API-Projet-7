@@ -4,15 +4,12 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Representation\Representation;
 use App\Service\CustomerService;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use JMS\Serializer\SerializerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,10 +43,11 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     serializerGroups={"list"}
      * )
-     * @IsGranted("ROLE_CUSTOMER")
+     * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
      * @param UserRepository $repo
+     * @return array
      */
-    public function list(UserRepository $repo, PaginatorInterface $paginator, Request $request, ParamFetcher $paramFetcher)
+    public function list(UserRepository $repo, PaginatorInterface $paginator, Request $request, ParamFetcher $paramFetcher): array
     {
         $users = $repo->findBy(['customer' => $this->customerService->getUser()]);
 
@@ -78,7 +76,7 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200,
      *     serializerGroups={"detail"}
      * )
-     * @Security("user.getId() == userApi.getCustomer().getId()")
+     * @Security("(user.getId() == userApi.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @param User $userApi
      * @return User
      */
@@ -96,7 +94,7 @@ class UserController extends AbstractFOSRestController
      *     serializerGroups={"create"}
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
-     * @IsGranted("ROLE_CUSTOMER")
+     * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
      * @param User $user
      * @param ObjectManager $manager
      * @param ConstraintViolationList $violations
@@ -123,7 +121,7 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     statusCode=200
      * )
-     * @Security("user.getId() == existingUser.getCustomer().getId()")
+     * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @param User $existingUser
      * @param ObjectManager $manager
      * @return void
@@ -143,7 +141,7 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200,
      *     serializerGroups={"detail"}
      * )
-     * @Security("user.getId() == existingUser.getCustomer().getId()")
+     * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @param User $existingUser
      * @param Request $request
      * @param ObjectManager $manager
