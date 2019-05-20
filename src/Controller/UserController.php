@@ -4,15 +4,17 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Representation\Representation;
 use App\Service\CustomerService;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Request\ParamFetcher;
 use JMS\Serializer\SerializerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -29,16 +31,42 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Get(path="/api/user")
+     * @Rest\QueryParam(
+     *     name="offset",
+     *     requirements="\d+",
+     *     default="1",
+     *     description="The pagination offset"
+     * )
+     * @Rest\QueryParam(
+     *     name="limit",
+     *     requirements="\d+",
+     *     default="10",
+     *     description="Max user per page"
+     * )
      * @Rest\View(
      *     serializerGroups={"list"}
      * )
      * @IsGranted("ROLE_CUSTOMER")
+     * @param UserRepository $repo
      */
-    public function list(UserRepository $repo): array
+    public function list(UserRepository $repo, PaginatorInterface $paginator, Request $request, ParamFetcher $paramFetcher)
     {
         $users = $repo->findBy(['customer' => $this->customerService->getUser()]);
 
-        return $users;
+        $pagination = $paginator->paginate(
+            $users,
+            $request->query->getInt(
+                'page',
+                $paramFetcher->get('offset')
+                ),
+            $paramFetcher->get('limit')
+        );
+
+        $result = array(
+            'data' => $pagination->getItems(),
+            'meta' => $pagination->getPaginationData());
+
+        return $result;
     }
 
     /**
@@ -51,7 +79,7 @@ class UserController extends AbstractFOSRestController
      *     serializerGroups={"detail"}
      * )
      * @Security("user.getId() == userApi.getCustomer().getId()")
-     * @param User $user
+     * @param User $userApi
      * @return User
      */
     public function show(User $userApi): User
@@ -69,6 +97,10 @@ class UserController extends AbstractFOSRestController
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
      * @IsGranted("ROLE_CUSTOMER")
+     * @param User $user
+     * @param ObjectManager $manager
+     * @param ConstraintViolationList $violations
+     * @return mixed
      */
     public function create(User $user, ObjectManager $manager, ConstraintViolationList $violations)
     {
@@ -92,6 +124,9 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200
      * )
      * @Security("user.getId() == existingUser.getCustomer().getId()")
+     * @param User $existingUser
+     * @param ObjectManager $manager
+     * @return void
      */
     public function delete(User $existingUser, ObjectManager $manager)
     {
@@ -109,27 +144,29 @@ class UserController extends AbstractFOSRestController
      *     serializerGroups={"detail"}
      * )
      * @Security("user.getId() == existingUser.getCustomer().getId()")
+     * @param User $existingUser
      * @param Request $request
      * @param ObjectManager $manager
-     * @return User
+     * @param ValidatorInterface $validator
+     * @return mixed
      */
-    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator): User
+    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator)
     {
         $array = json_decode($request->getContent(), true);
         // sette the user object dynamically
-         foreach ($array as $key => $value) {
-             $method = 'set'.$key;
-             if (preg_match('/_/', $key)) {
-                 $arrayExp = explode('_', $key);
-                 foreach ($arrayExp as $entry => $val) {
-                     $arrayExpUcF[$entry] = ucfirst($val);
-                 }
-                 $method = 'set' . implode($arrayExpUcF);
-             }
-             if (method_exists($existingUser, $method)) {
-                 $existingUser->$method($array[$key]);
-             }
-         }
+        foreach ($array as $key => $value) {
+            $method = 'set'.$key;
+            if (preg_match('/_/', $key)) {
+                $arrayExp = explode('_', $key);
+                foreach ($arrayExp as $entry => $val) {
+                    $arrayExpUcF[$entry] = ucfirst($val);
+                }
+                $method = 'set' . implode($arrayExpUcF);
+            }
+            if (method_exists($existingUser, $method)) {
+                $existingUser->$method($array[$key]);
+            }
+        }
 
         $errors = $validator->validate($existingUser);
         if (count($errors)) {

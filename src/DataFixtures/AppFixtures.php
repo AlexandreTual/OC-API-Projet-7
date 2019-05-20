@@ -2,7 +2,6 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Address;
 use App\Entity\Customer;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -25,7 +24,7 @@ class AppFixtures extends Fixture
         $faker = Factory::create();
 
         $customer = new Customer();
-
+        $customers = [];
         $customer
             ->setName('orange')
             ->setEmail('orange@orange.fr')
@@ -34,29 +33,28 @@ class AppFixtures extends Fixture
             ->setSiren('123456789');
 
         $manager->persist($customer);
+        $customers[] = $customer;
 
-        for ($i = 0; $i <= 10; $i++) {
+        $customer2 = new Customer();
+        $customer2
+            ->setName('levyathan')
+            ->setEmail('levyathan@gmail.com')
+            ->setHash($this->encoder->encodePassword($customer, 'password'))
+            ->setPhoneNumber('0112121212')
+            ->setSiren('123457845');
+
+        $manager->persist($customer2);
+        $customers[] = $customer2;
+
+        for ($i = 0; $i <= 30; $i++) {
             $user = new User();
             $user
                 ->setFirstname($faker->firstName)
                 ->setLastname($faker->lastName)
                 ->setHash($this->encoder->encodePassword($user, 'password'))
                 ->setEmail($user->getFirstname() .'-'. $user->getLastname() . '@gmail.com')
-                ->setCustomer($customer);
+                ->setCustomer($faker->randomElement($customers));
 
-
-            $address = new Address();
-            $address
-                ->setWay($faker->address)
-                ->setNumberWay(mt_rand(1, 500))
-                ->setCity($faker->city)
-                ->setPostalCode($faker->postcode)
-                ->setCountry($faker->country)
-                ->setPhoneNumber($faker->phoneNumber)
-                ->setByDefault(1)
-                ->setUser($user);
-
-            $manager->persist($address);
             $manager->persist($user);
         }
 
