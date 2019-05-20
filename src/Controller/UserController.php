@@ -4,13 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Representation\Representation;
 use App\Service\CustomerService;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use JMS\Serializer\SerializerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -48,8 +46,9 @@ class UserController extends AbstractFOSRestController
      * )
      * @IsGranted("ROLE_CUSTOMER")
      * @param UserRepository $repo
+     * @return array
      */
-    public function list(UserRepository $repo, PaginatorInterface $paginator, Request $request, ParamFetcher $paramFetcher)
+    public function list(UserRepository $repo, PaginatorInterface $paginator, Request $request, ParamFetcher $paramFetcher): array
     {
         $users = $repo->findBy(['customer' => $this->customerService->getUser()]);
 
