@@ -55,7 +55,7 @@ class ProductController extends AbstractFOSRestController
      * @Rest\View(
      *     serializerGroups={"detail"}
      * )
-     * @IsGranted("ROLE_CUSTOMER")
+     * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
      * @return Product
      */
     public function show(Product $product): Product

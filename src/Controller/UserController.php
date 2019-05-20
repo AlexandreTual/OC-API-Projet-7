@@ -44,7 +44,7 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     serializerGroups={"list"}
      * )
-     * @IsGranted("ROLE_CUSTOMER")
+     * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
      * @param UserRepository $repo
      * @return array
      */
@@ -77,7 +77,7 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200,
      *     serializerGroups={"detail"}
      * )
-     * @Security("user.getId() == userApi.getCustomer().getId()")
+     * @Security("(user.getId() == userApi.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @param User $userApi
      * @return User
      */
@@ -95,7 +95,7 @@ class UserController extends AbstractFOSRestController
      *     serializerGroups={"create"}
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
-     * @IsGranted("ROLE_CUSTOMER")
+     * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
      * @param User $user
      * @param ObjectManager $manager
      * @param ConstraintViolationList $violations
@@ -122,7 +122,7 @@ class UserController extends AbstractFOSRestController
      * @Rest\View(
      *     statusCode=200
      * )
-     * @Security("user.getId() == existingUser.getCustomer().getId()")
+     * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @param User $existingUser
      * @param ObjectManager $manager
      * @return void
@@ -142,7 +142,7 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200,
      *     serializerGroups={"detail"}
      * )
-     * @Security("user.getId() == existingUser.getCustomer().getId()")
+     * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @param User $existingUser
      * @param Request $request
      * @param ObjectManager $manager
