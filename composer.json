@@ -8,16 +8,21 @@
         "doctrine/annotations": "^1.6",
         "friendsofsymfony/rest-bundle": "^2.5",
         "jms/serializer-bundle": "^3.3",
+        "knplabs/knp-paginator-bundle": "^3.0",
         "lexik/jwt-authentication-bundle": "^2.6",
+        "sensio/framework-extra-bundle": "^5.3",
         "symfony/console": "4.2.*",
         "symfony/dotenv": "4.2.*",
         "symfony/flex": "^1.1",
         "symfony/framework-bundle": "4.2.*",
+        "symfony/options-resolver": "4.2.*",
         "symfony/orm-pack": "^1.0",
         "symfony/security-bundle": "4.2.*",
         "symfony/translation": "4.2.*",
+        "symfony/twig-bundle": "4.2.*",
         "symfony/validator": "4.2.*",
-        "symfony/yaml": "4.2.*"
+        "symfony/yaml": "4.2.*",
+        "willdurand/hateoas-bundle": "^2.0"
     },
     "config": {
         "preferred-install": {
@@ -66,6 +71,7 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.1",
+        "fzaninotto/faker": "^1.8",
         "symfony/debug-bundle": "4.2.*",
         "symfony/maker-bundle": "^1.11",
         "symfony/var-dumper": "4.2.*",

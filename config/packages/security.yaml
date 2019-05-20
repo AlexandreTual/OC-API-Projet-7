@@ -2,6 +2,8 @@ security:
     encoders:
         App\Entity\Customer:
             algorithm: bcrypt
+        App\Entity\User:
+            algorithm: bcrypt
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         #in_memory: { memory: ~ }
