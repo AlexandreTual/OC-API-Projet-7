@@ -29,5 +29,9 @@ services:
     App\Service\CustomerService:
         arguments: [ '@doctrine.orm.default_entity_manager', '@lexik_jwt_authentication.extractor.chain_extractor' ,'@lexik_jwt_authentication.encoder.lcobucci', '@request_stack']
 
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
+
 
 
