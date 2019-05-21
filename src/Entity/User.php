@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Behavior\TimestampableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -31,10 +32,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      ),
  *     exclusion= @Hateoas\Exclusion(groups={"detail", "list"})
  * )
- *
  */
 class User implements UserInterface
 {
+    /**
+     * @Serializer\Groups({"detail", "create"})
+     */
+    use TimestampableTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Behavior\TimestampableTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -21,6 +22,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Product
 {
+    /**
+     * @Serializer\Groups({"detail"})
+     */
+    use TimestampableTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

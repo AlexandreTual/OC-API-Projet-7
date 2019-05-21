@@ -52,6 +52,7 @@ class ProductController extends AbstractFOSRestController
      *     path="/api/product/{id}",
      *     requirements={"id": "\d+"})
      * @Rest\View(
+     *     statusCode=200,
      *     serializerGroups={"detail"}
      * )
      * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
