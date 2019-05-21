@@ -8,13 +8,19 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class ProductController
+ * @package App\Controller
+ * @Route("api.bilmo")
+ */
 class ProductController extends AbstractFOSRestController
 {
     /**
-     * @Rest\Get(path="/api/product")
+     * @Rest\Get(path="/product")
      * @Rest\QueryParam(
      *     name="offset",
      *     requirements="\d+",
@@ -49,7 +55,7 @@ class ProductController extends AbstractFOSRestController
 
     /**
      * @Rest\Get(
-     *     path="/api/product/{id}",
+     *     path="/product/{id}",
      *     requirements={"id": "\d+"})
      * @Rest\View(
      *     statusCode=200,
