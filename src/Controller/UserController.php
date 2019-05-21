@@ -11,12 +11,18 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Class UserController
+ * @package App\Controller
+ * @Route("/api.bilmo")
+ */
 class UserController extends AbstractFOSRestController
 {
     private $customerService;
@@ -27,7 +33,7 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Get(path="/api/user")
+     * @Rest\Get(path="/user")
      * @Rest\QueryParam(
      *     name="offset",
      *     requirements="\d+",
@@ -69,7 +75,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Get(
-     *     path="/api/user/{id}",
+     *     path="/user/{id}",
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
@@ -87,7 +93,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Post(
-     *     path="/api/user/create"
+     *     path="/user/create"
      * )
      * @Rest\View(
      *     statusCode=201,
@@ -115,7 +121,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Delete(
-     *     path="/api/user/delete/{id}",
+     *     path="/user/delete/{id}",
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
@@ -134,7 +140,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Patch(
-     *     path="/api/user/update/{id}",
+     *     path="/user/update/{id}",
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
