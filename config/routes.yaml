@@ -1,4 +1,4 @@
 api_login_check:
-  path: /api.bilmo/login_check
+  path: /api.bilmo/login
 #    path: /
 #    controller: App\Controller\DefaultController::index
