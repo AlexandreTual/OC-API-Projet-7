@@ -1,4 +1,17 @@
 api_login_check:
   path: /api.bilmo/login
+
+app.swagger_ui:
+  path: /api.bilmo/doc
+  methods: GET
+  defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
+#app.swagger:
+  #path: /api.bilmo/doc.json
+  #methods: GET
+  #defaults: { _controller: nelmio_api_doc.controller.swagger }
+
+
+
 #    path: /
 #    controller: App\Controller\DefaultController::index

@@ -1,0 +1,13 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Documentation Bilemo API
+            description: Welcome to the BileMo API documentation
+            version: 1.0.0
+
+    areas: # to filter documented areas
+        path_patterns:
+            - ^/api.bilmo(?!/doc$) # Accepts routes under /api except /api/doc
+
+
+

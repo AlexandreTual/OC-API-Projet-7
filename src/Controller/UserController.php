@@ -10,9 +10,11 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Knp\Component\Pager\PaginatorInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -47,7 +49,47 @@ class UserController extends AbstractFOSRestController
      *     description="Max user per page"
      * )
      * @Rest\View(
+     *     statusCode=200,
      *     serializerGroups={"list"}
+     * )
+     * @SWG\Get(
+     *     description="Get list user",
+     *     tags={"User"},
+     *     @SWG\Response(
+     *          response="200",
+     *          description="Returns the user list attached to the client",
+     *          @SWG\Schema(
+     *              type="array",
+     *              @SWG\Items(ref=@Model(type=User::class, groups={"create"}))
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request: Method Not Allowed",
+     *     ),
+     *     @SWG\Response(
+     *         response="401",
+     *         description="Unauthorized: Expired JWT Token/JWT Token not found",
+     *     ),
+     *     @SWG\Parameter(
+     *          name="Authorization",
+     *          required=true,
+     *          in="header",
+     *          type="string",
+     *          description="Bearer Token"
+     *     ),
+     *     @SWG\Parameter(
+     *          name="offset",
+     *          in="query",
+     *          type="string",
+     *          description="Field used to define the requested page"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="limit",
+     *          in="query",
+     *          type="string",
+     *          description="Field used to define result number per page"
+     *     )
      * )
      * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
      * @param UserRepository $repo
@@ -83,6 +125,37 @@ class UserController extends AbstractFOSRestController
      *     serializerGroups={"detail"}
      * )
      * @Security("(user.getId() == userApi.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
+     * @SWG\Get(
+     *     description="Get one user",
+     *     tags={"User"},
+     *     @SWG\Response(
+     *          response="200",
+     *          description="Returns one user by id attached to the client",
+     *          @SWG\Schema(
+     *              type="array",
+     *              @SWG\Items(ref=@Model(type=User::class, groups={"detail"}))
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request: Method Not Allowed",
+     *     ),
+     *     @SWG\Response(
+     *         response="401",
+     *         description="Unauthorized: Expired JWT Token/JWT Token not found",
+     *     ),
+     *     @SWG\Response(
+     *         response="404",
+     *         description="Product object not found: Invalid ID supplied/Invalid Route",
+     *     ),
+     *     @SWG\Parameter(
+     *          name="Authorization",
+     *          required=true,
+     *          in="header",
+     *          type="string",
+     *          description="Bearer Token"
+     *     )
+     * )
      * @param User $userApi
      * @return User
      */
@@ -92,15 +165,55 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post(
-     *     path="/user/create"
-     * )
+     * @Rest\Post(path="/user/create")
      * @Rest\View(
      *     statusCode=201,
      *     serializerGroups={"create"}
      * )
      * @ParamConverter("user", converter="fos_rest.request_body")
      * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
+     * @SWG\Post(
+     *     description="Create one user",
+     *     tags={"User"},
+     *     @SWG\Response(
+     *          response="201",
+     *          description="Returns the created user",
+     *          @SWG\Schema(
+     *              type="array",
+     *              @SWG\Items(ref=@Model(type=User::class, groups={"detail"}))
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request: Method Not Allowed",
+     *     ),
+     *     @SWG\Response(
+     *         response="401",
+     *         description="Unauthorized: Expired JWT Token/JWT Token not found",
+     *     ),
+     *     @SWG\Response(
+     *         response="404",
+     *         description="Product object not found: Invalid ID supplied/Invalid Route",
+     *     ),
+     *     @SWG\Parameter(
+     *          name="Authorization",
+     *          required=true,
+     *          in="header",
+     *          type="string",
+     *          description="Bearer Token"
+     *     ),
+     *      @SWG\Parameter(
+     *          name="Body",
+     *          required=true,
+     *          in="body",
+     *          type="string",
+     *          @SWG\Schema(
+     *              type="array",
+     *              @SWG\Items(ref=@Model(type=User::class, groups={"create"}))
+     *          ),
+     *          description="*All properties required to add"
+     *      )
+     * )
      * @param User $user
      * @param ObjectManager $manager
      * @param ConstraintViolationList $violations
@@ -128,6 +241,33 @@ class UserController extends AbstractFOSRestController
      *     statusCode=200
      * )
      * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
+     * @SWG\Delete(
+     *     description="Delete a user",
+     *     tags={"User"},
+     *     @SWG\Response(
+     *          response="200",
+     *          description="Successful operation"
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request: Method Not Allowed",
+     *     ),
+     *     @SWG\Response(
+     *         response="401",
+     *         description="Unauthorized: Expired JWT Token/JWT Token not found",
+     *     ),
+     *     @SWG\Response(
+     *         response="404",
+     *         description="Product object not found: Invalid ID supplied/Invalid Route",
+     *     ),
+     *     @SWG\Parameter(
+     *          name="Authorization",
+     *          required=true,
+     *          in="header",
+     *          type="string",
+     *          description="Bearer Token"
+     *     )
+     * )
      * @param User $existingUser
      * @param ObjectManager $manager
      * @return void
@@ -148,6 +288,55 @@ class UserController extends AbstractFOSRestController
      *     serializerGroups={"detail"}
      * )
      * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
+     * @SWG\Patch(
+     *     description="Update user",
+     *     tags={"User"},
+     *     @SWG\Response(
+     *          response="200",
+     *          description="Returns the updated user",
+     *          @SWG\Schema(
+     *              type="array",
+     *              @SWG\Items(ref=@Model(type=User::class, groups={"detail"}))
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *         response="400",
+     *         description="Bad Request: Method Not Allowed",
+     *     ),
+     *     @SWG\Response(
+     *         response="401",
+     *         description="Unauthorized: Expired JWT Token/JWT Token not found",
+     *     ),
+     *     @SWG\Response(
+     *         response="404",
+     *         description="Product object not found: Invalid ID supplied/Invalid Route",
+     *     ),
+     *     @SWG\Parameter(
+     *          name="Authorization",
+     *          required=true,
+     *          in="header",
+     *          type="string",
+     *          description="Bearer Token"
+     *     ),
+     *     @SWG\Parameter(
+     *          name="id",
+     *          required=true,
+     *          in="query",
+     *     type="string",
+     *     description="The unique identifier of a user"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="Body",
+     *          required=true,
+     *          in="body",
+     *          type="string",
+     *          @SWG\Schema(
+     *              type="array",
+     *              @SWG\Items(ref=@Model(type=User::class, groups={"update"}))
+     *          ),
+     *          description="At least one property required for the update"
+     *      )
+     * )
      * @param User $existingUser
      * @param Request $request
      * @param ObjectManager $manager
