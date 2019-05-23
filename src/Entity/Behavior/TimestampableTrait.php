@@ -9,13 +9,13 @@ trait TimestampableTrait
 {
     /**
      * @ORM\Column(type="datetime")
-     * @Serializer\Groups({"detail", "create"})
+     * @Serializer\Groups({"detail"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Serializer\Groups({"detail", "create"})
+     * @Serializer\Groups({"detail"})
      */
     private $updatedAt;
 

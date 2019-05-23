@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Swagger\Annotations as SWG;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -36,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface
 {
     /**
-     * @Serializer\Groups({"detail", "create"})
+     * @Serializer\Groups({"detail"})
      */
     use TimestampableTrait;
 
@@ -44,7 +45,8 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Serializer\Groups({"create", "detail", "list"})
+     * @Serializer\Groups({"detail", "list"})
+     * @SWG\Property(description="The unique identifier for the user")
      */
     private $id;
 
@@ -52,6 +54,7 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      * @Serializer\Groups({"create", "detail", "list", "update"})
+     * @SWG\Property(type="string", maxLength=255)
      */
     private $firstName;
 
