@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          parameters = { "id" = "expr(object.getId())" },
  *          absolute="true"
  *      ),
- *     exclusion= @Hateoas\Exclusion(groups={"detail", "list", "create"})
+ *     exclusion= @Hateoas\Exclusion(groups={"list"})
  * )
  * @Hateoas\Relation(
  *     "delete",
@@ -31,7 +31,24 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          parameters = { "id" = "expr(object.getId())" },
  *          absolute="true"
  *      ),
- *     exclusion= @Hateoas\Exclusion(groups={"detail", "list"})
+ *     exclusion= @Hateoas\Exclusion(groups={"detail"})
+ * )
+ * @Hateoas\Relation(
+ *     "update",
+ *      href = @Hateoas\Route(
+ *          "app_user_update",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute="true"
+ *      ),
+ *     exclusion= @Hateoas\Exclusion(groups={"detail"})
+ * )
+ * @Hateoas\Relation(
+ *     "list",
+ *      href = @Hateoas\Route(
+ *          "app_user_list",
+ *          absolute="true"
+ *      ),
+ *     exclusion= @Hateoas\Exclusion(groups={"detail"})
  * )
  */
 class User implements UserInterface
@@ -68,7 +85,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Serializer\Groups({"create", "update"})
+     * @Serializer\Groups({"create", "update", "detail"})
      */
     private $hash;
 
