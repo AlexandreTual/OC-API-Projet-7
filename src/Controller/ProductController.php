@@ -4,15 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Repository\ProductRepository;
+use App\Service\CacheService;
+use App\Service\PaginatedService;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use Knp\Component\Pager\PaginatorInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class ProductController
@@ -83,20 +83,27 @@ class ProductController extends AbstractFOSRestController
      *     )
      * )
      * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
+     * @param ProductRepository $repo
+     * @param ParamFetcher $paramFetcher
+     * @param PaginatedService $paginatedService
+     * @param CacheService $cacheService
      * @return array
      */
-    public function list(ProductRepository $repository, Request $request, PaginatorInterface $paginator, ParamFetcher $paramFetcher): array
+    public function list(ProductRepository $repo, ParamFetcher $paramFetcher,
+                         PaginatedService $paginatedService, CacheService $cacheService): array
     {
-        $products = $repository->findAll();
+        $cacheData = $cacheService->cache(
+            'product_list',
+            $repo->findAll()
+        );
 
-        $productsPaginated = $paginator->paginate($products, $request->query->getInt('page', $paramFetcher->get('offset')), $paramFetcher->get('limit'));
+        $data = $paginatedService->pagination(
+            $cacheData,
+            $paramFetcher->get('offset'),
+            $paramFetcher->get('limit')
+        );
 
-        $results = [
-            'data' => $productsPaginated->getItems(),
-            'meta' => $productsPaginated->getPaginationData(),
-        ];
-
-        return $results;
+        return $data;
     }
 
     /**

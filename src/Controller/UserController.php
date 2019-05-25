@@ -4,12 +4,13 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\CacheService;
 use App\Service\CustomerService;
+use App\Service\PaginatedService;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use Knp\Component\Pager\PaginatorInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -93,26 +94,27 @@ class UserController extends AbstractFOSRestController
      * )
      * @Security("is_granted('ROLE_CUSTOMER') or is_granted('ROLE_ADMIN')")
      * @param UserRepository $repo
+     * @param ParamFetcher $paramFetcher
+     * @param PaginatedService $paginatedService
+     * @param CacheService $cacheService
      * @return array
      */
-    public function list(UserRepository $repo, PaginatorInterface $paginator, Request $request, ParamFetcher $paramFetcher): array
+    public function list(UserRepository $repo, ParamFetcher $paramFetcher,
+                         PaginatedService $paginatedService, CacheService $cacheService): array
     {
-        $users = $repo->findBy(['customer' => $this->customerService->getUser()]);
+        $cacheData = $cacheService->cache(
+            'user_list',
+            $repo->findBy(['customer' => $this->customerService->getUser()]),
+            7380
+        );
 
-        $pagination = $paginator->paginate(
-            $users,
-            $request->query->getInt(
-                'page',
-                $paramFetcher->get('offset')
-                ),
+        $data = $paginatedService->pagination(
+            $cacheData,
+            $paramFetcher->get('offset'),
             $paramFetcher->get('limit')
         );
 
-        $result = array(
-            'data' => $pagination->getItems(),
-            'meta' => $pagination->getPaginationData());
-
-        return $result;
+        return $data;
     }
 
     /**
