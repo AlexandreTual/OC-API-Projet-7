@@ -104,7 +104,8 @@ class UserController extends AbstractFOSRestController
     {
         $cacheData = $cacheService->cache(
             'user_list',
-            $repo->findBy(['customer' => $this->customerService->getUser()])
+            $repo->findBy(['customer' => $this->customerService->getUser()]),
+            7380
         );
 
         $data = $paginatedService->pagination(
