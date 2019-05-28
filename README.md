@@ -12,8 +12,10 @@ PHP => 7.1
 
 ### Librairies
 [lexik/LexikJWTAuthenticationBundle](https://github.com/lexik/LexikJWTAuthenticationBundle) utilisé pour le système d'authentification et de création de JWT (Json Web Token).
+
 [FriendsOfSymfony/FOSRestBundle
 ](https://github.com/FriendsOfSymfony/FOSRestBundle) utilisé pour facilité l'intégration de plusieurs librairies et le développement de l'API.
+
 [JMSSerializerBundle](http://jmsyst.com/bundles/JMSSerializerBundle) utilisé pour avoir des fonctionnalités avancées de serialization
 
 [willdurand/Hateoas](https://github.com/willdurand/Hateoas) utilisé pour avoir des fonctionnalités répondant au niveau 3, du modèle de maturité de Richardson.
