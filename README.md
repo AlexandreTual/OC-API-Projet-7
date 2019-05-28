@@ -65,5 +65,9 @@ php bin/console doctrine:fixtures:load
 ```
 
 Pour les tests, les noms des clients ainsi que les mots de passe se trouvent dans le dossier Fixtures.
+La documentation de l'API est disponible a cette adresse (une fois le serveur lancé):
+```sh 
+/api.bilmo/doc
+```
 
 Vous pouvez à présent travailler sur le projet !!
