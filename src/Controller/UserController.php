@@ -66,7 +66,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -140,7 +140,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -167,7 +167,7 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post(path="/user/create")
+     * @Rest\Post(path="/user")
      * @Rest\View(
      *     statusCode=201,
      *     serializerGroups={"create"}
@@ -187,7 +187,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -236,7 +236,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Delete(
-     *     path="/user/delete/{id}",
+     *     path="/user/{id}",
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
@@ -252,7 +252,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -282,7 +282,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Patch(
-     *     path="/user/update/{id}",
+     *     path="/user/{id}",
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
@@ -303,7 +303,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
