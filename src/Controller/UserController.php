@@ -8,6 +8,7 @@ use App\Service\CacheService;
 use App\Service\CustomerService;
 use App\Service\PaginatedService;
 use App\Service\UserService;
+use App\Service\ValidationService;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -18,7 +19,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -222,10 +222,10 @@ class UserController extends AbstractFOSRestController
      * @param ConstraintViolationList $violations
      * @return mixed
      */
-    public function create(User $user, ObjectManager $manager, ConstraintViolationList $violations)
+    public function create(User $user, ObjectManager $manager, ConstraintViolationList $violations, ValidationService $validationService)
     {
-        if (count($violations)) {
-            return $this->view($violations, Response::HTTP_BAD_REQUEST);
+        if($violations) {
+            return $validationService->violation($violations);
         }
 
         $user->setCustomer($this->customerService->getUser());
@@ -241,7 +241,7 @@ class UserController extends AbstractFOSRestController
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
-     *     statusCode=200
+     *     statusCode=204
      * )
      * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @SWG\Delete(
@@ -346,15 +346,12 @@ class UserController extends AbstractFOSRestController
      * @param ValidatorInterface $validator
      * @return mixed
      */
-    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator, UserService $userService)
+    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator, UserService $userService, ValidationService $validationService)
     {
         $user = $userService->updateField($request, $existingUser);
-
-        $errors = $validator->validate($existingUser);
-        if (count($errors)) {
-            return $this->view($errors, Response::HTTP_BAD_REQUEST);
+        if($validator) {
+            return $validationService->validation($existingUser);
         }
-
         $manager->flush();
 
         return $user;
