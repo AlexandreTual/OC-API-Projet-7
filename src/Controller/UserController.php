@@ -7,6 +7,8 @@ use App\Repository\UserRepository;
 use App\Service\CacheService;
 use App\Service\CustomerService;
 use App\Service\PaginatedService;
+use App\Service\UserService;
+use App\Service\ValidationService;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -17,7 +19,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -66,7 +67,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -140,7 +141,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -167,7 +168,7 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post(path="/user/create")
+     * @Rest\Post(path="/user")
      * @Rest\View(
      *     statusCode=201,
      *     serializerGroups={"create"}
@@ -187,7 +188,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -221,10 +222,10 @@ class UserController extends AbstractFOSRestController
      * @param ConstraintViolationList $violations
      * @return mixed
      */
-    public function create(User $user, ObjectManager $manager, ConstraintViolationList $violations)
+    public function create(User $user, ObjectManager $manager, ConstraintViolationList $violations, ValidationService $validationService)
     {
-        if (count($violations)) {
-            return $this->view($violations, Response::HTTP_BAD_REQUEST);
+        if($violations) {
+            return $validationService->violation($violations);
         }
 
         $user->setCustomer($this->customerService->getUser());
@@ -236,11 +237,11 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Delete(
-     *     path="/user/delete/{id}",
+     *     path="/user/{id}",
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
-     *     statusCode=200
+     *     statusCode=204
      * )
      * @Security("(user.getId() == existingUser.getCustomer().getId()) or is_granted('ROLE_ADMIN')")
      * @SWG\Delete(
@@ -252,7 +253,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -282,7 +283,7 @@ class UserController extends AbstractFOSRestController
 
     /**
      * @Rest\Patch(
-     *     path="/user/update/{id}",
+     *     path="/user/{id}",
      *     requirements={"id": "\d+"}
      * )
      * @Rest\View(
@@ -303,7 +304,7 @@ class UserController extends AbstractFOSRestController
      *     ),
      *     @SWG\Response(
      *         response="400",
-     *         description="Bad Request: Method Not Allowed",
+     *         description="Bad Request",
      *     ),
      *     @SWG\Response(
      *         response="401",
@@ -345,31 +346,14 @@ class UserController extends AbstractFOSRestController
      * @param ValidatorInterface $validator
      * @return mixed
      */
-    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator)
+    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator, UserService $userService, ValidationService $validationService)
     {
-        $array = json_decode($request->getContent(), true);
-        // sette the user object dynamically
-        foreach ($array as $key => $value) {
-            $method = 'set'.$key;
-            if (preg_match('/_/', $key)) {
-                $arrayExp = explode('_', $key);
-                foreach ($arrayExp as $entry => $val) {
-                    $arrayExpUcF[$entry] = ucfirst($val);
-                }
-                $method = 'set' . implode($arrayExpUcF);
-            }
-            if (method_exists($existingUser, $method)) {
-                $existingUser->$method($array[$key]);
-            }
+        $user = $userService->updateField($request, $existingUser);
+        if($validator) {
+            return $validationService->validation($existingUser);
         }
-
-        $errors = $validator->validate($existingUser);
-        if (count($errors)) {
-            return $this->view($errors, Response::HTTP_BAD_REQUEST);
-        }
-
         $manager->flush();
 
-        return $existingUser;
+        return $user;
     }
 }
