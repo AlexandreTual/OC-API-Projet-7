@@ -13,12 +13,14 @@ use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -346,14 +348,16 @@ class UserController extends AbstractFOSRestController
      * @param ValidatorInterface $validator
      * @return mixed
      */
-    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator, UserService $userService, ValidationService $validationService)
+    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator, UserService $userService)
     {
-        $user = $userService->updateField($request, $existingUser);
-        if($validator) {
-            return $validationService->validation($existingUser);
+        $existingUser = $userService->updateField($request, $existingUser);
+
+        $errors = $validator->validate($existingUser);
+        if (count($errors)) {
+            return View::create($errors, Response::HTTP_BAD_REQUEST);
         }
         $manager->flush();
 
-        return $user;
+        return $existingUser;
     }
 }

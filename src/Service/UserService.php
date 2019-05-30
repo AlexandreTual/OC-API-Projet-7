@@ -7,6 +7,7 @@ use FOS\RestBundle\View\View;
 
 class UserService
 {
+
     public function updateField($request, $existingUser)
     {
         $array = json_decode($request->getContent(), true);

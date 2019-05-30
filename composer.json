@@ -25,7 +25,8 @@
         "symfony/twig-bundle": "4.2.*",
         "symfony/validator": "4.2.*",
         "symfony/yaml": "4.2.*",
-        "willdurand/hateoas-bundle": "^2.0"
+        "willdurand/hateoas-bundle": "^2.0",
+        "ext-json": "*"
     },
     "config": {
         "preferred-install": {
