@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use App\Service\CacheService;
 use App\Service\CustomerService;
 use App\Service\PaginatedService;
+use App\Service\UserService;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -345,23 +346,9 @@ class UserController extends AbstractFOSRestController
      * @param ValidatorInterface $validator
      * @return mixed
      */
-    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator)
+    public function update(User $existingUser, Request $request, ObjectManager $manager, ValidatorInterface $validator, UserService $userService)
     {
-        $array = json_decode($request->getContent(), true);
-        // sette the user object dynamically
-        foreach ($array as $key => $value) {
-            $method = 'set'.$key;
-            if (preg_match('/_/', $key)) {
-                $arrayExp = explode('_', $key);
-                foreach ($arrayExp as $entry => $val) {
-                    $arrayExpUcF[$entry] = ucfirst($val);
-                }
-                $method = 'set' . implode($arrayExpUcF);
-            }
-            if (method_exists($existingUser, $method)) {
-                $existingUser->$method($array[$key]);
-            }
-        }
+        $user = $userService->updateField($request, $existingUser);
 
         $errors = $validator->validate($existingUser);
         if (count($errors)) {
@@ -370,6 +357,6 @@ class UserController extends AbstractFOSRestController
 
         $manager->flush();
 
-        return $existingUser;
+        return $user;
     }
 }
